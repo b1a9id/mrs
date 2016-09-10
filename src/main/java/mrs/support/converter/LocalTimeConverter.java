@@ -1,4 +1,4 @@
-package mrs.domain.model.converter;
+package mrs.support.converter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
