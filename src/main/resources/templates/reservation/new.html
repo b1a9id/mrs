@@ -1,0 +1,85 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" th:href="@{/webjars/Semantic-UI/2.1.8/semantic.min.css}"/>
+    <link rel="stylesheet" th:href="@{/resources/css/style.css}"/>
+
+    <script th:src="@{/webjars/jquery/2.2.0/jquery.min.js}"></script>
+    <script th:src="@{/webjars/Semantic-UI/2.1.8/semantic.min.js}"></script>
+    <!--<script th:src="@{/resources/lib/jquery.sliphover.min.js}"></script>-->
+
+    <link rel="stylesheet" href="/static/resources/lib/Semantic-UI/2.1.8/semantic.min.css"/>
+    <script src="/static/resources/lib/jquery.min.js"></script>
+    <script src="/static/resources/lib/Semantic-UI/2.1.8/semantic.min.js"></script>
+
+    <title th:text="|${#temporals.format(date, 'yyyy/M/d')}の${room.roomName}|">2016/05/20の豊洲</title>
+</head>
+<body>
+    <div class="ui text container">
+        <div colspan="4">
+            <a th:href="@{'/rooms/' + ${date}}"><div class="ui right floated small red labeled icon button"><i class="sign out icon"></i>会議室一覧へ</div></a>
+        </div>
+
+        <form th:object="${reservationForm}" th:action="@{'/reservations/' + ${date} + '/' + ${roomId}}" method="post">
+            <table class="ui celled blue table">
+                <tr>
+                    <th th:text="#{reservation.field.roomname.label}">場所</th>
+                    <td th:text="${room.roomName}">蒲田</td>
+                </tr>
+                <tr>
+                    <th th:text="#{reservation.field.user.label}">登録者</th>
+                    <td th:text="${user.lastName} + '' + ${user.firstName}">田中三郎</td>
+                </tr>
+                <tr>
+                    <th th:text="#{reservation.field.date.label}">日付</th>
+                    <td th:text="${#temporals.format(date, 'yyyy/M/d')}">2016/05/20</td>
+                </tr>
+                <tr>
+                    <th th:text="#{reservation.field.time.label}">時間</th>
+                    <td>
+                        <select th:field="*{startTime}">
+                            <option th:each="time : ${timeList}" th:text="${time}" th:value="${time}">09:00</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}" style="color:red">error!</span>
+                        ~
+                        <select th:field="*{endTime}">
+                            <option th:each="time : ${timeList}" th:text="${time}" th:value="${time}">10:00</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('endTime')}" th:errors="*{endTime}" style="color:red">error!</span>
+                    </td>
+                </tr>
+            </table>
+            <div colspan="4">
+                <button class="ui right floated small primary labeled icon button"><i class="user icon"></i>予約</button>
+            </div>
+        </form>
+
+        <table class="ui celled blue table">
+            <tr>
+                <th>時間帯</th>
+                <th>予約者</th>
+                <th>操作</th>
+            </tr>
+            <tr th:each="reservation : ${reservations}">
+                <td>
+                    <span th:text="${reservation.startTime}">10:00</span>
+                    ~
+                    <span th:text="${reservation.endTime}">12:00</span>
+                </td>
+                <td>
+                    <span th:text="${user.lastName}">山田</span>
+                    <span th:text="${user.firstName}">太郎</span>
+                </td>
+                <td>
+                    <form th:if="${user.userId == reservation.user.userId}" th:action="@{'/reservations/' + ${date} + '/' + ${roomId}}" method="post">
+                        <input type="hidden" name="reservationId" th:value="${reservation.reservationId}" />
+                        <input type="submit" name="cancel" value="取
+                        消"/>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package mrs.domain.service.room;
 
+import mrs.domain.model.MeetingRoom;
 import mrs.domain.model.ReservableRoom;
+import mrs.domain.repository.room.MeetingRoomRepository;
 import mrs.domain.repository.room.ReservableRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,14 @@ public class RoomService {
     @Autowired
     private ReservableRoomRepository reservableRoomRepository;
 
+    @Autowired
+    private MeetingRoomRepository meetingRoomRepository;
+
     public List<ReservableRoom> searchReservableRooms(LocalDate date) {
         return reservableRoomRepository.findByReservableRoomId_reservedDateOrderByReservableRoomId_roomIdAsc(date);
+    }
+
+    public MeetingRoom searchMeetingRoom(Integer roomId) {
+        return meetingRoomRepository.findOne(roomId);
     }
 }
