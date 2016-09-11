@@ -1,0 +1,69 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" th:href="@{/webjars/Semantic-UI/2.1.8/semantic.min.css}"/>
+  <link rel="stylesheet" th:href="@{/resources/css/style.css}"/>
+
+  <script th:src="@{/webjars/jquery/2.2.0/jquery.min.js}"></script>
+  <script th:src="@{/webjars/Semantic-UI/2.1.8/semantic.min.js}"></script>
+  <!--<script th:src="@{/resources/lib/jquery.sliphover.min.js}"></script>-->
+
+  <link rel="stylesheet" href="/static/resources/lib/Semantic-UI/2.1.8/semantic.min.css"/>
+  <script src="/static/resources/lib/jquery.min.js"></script>
+  <script src="/static/resources/lib/Semantic-UI/2.1.8/semantic.min.js"></script>
+
+  <title th:text="|${#temporals.format(date, 'yyyy/M/d')}の会議室|">2016/05/20の会議室</title>
+</head>
+<body>
+<div class="ui text container">
+  <!--<div colspan="4">-->
+    <!--<a th:href="@{/logout}"><div class="ui right floated small red labeled icon button"><i class="sign out icon"></i>ログアウト</div></a>-->
+  <!--</div>-->
+  <a th:href="@{'/rooms/' + ${date.minusDays(1)}}">&lt; 前日 </a>
+  <span class="ui header aligned blue" th:text="|${#temporals.format(date, 'yyyy/M/d')}の会議室|">2016/05/20の会議室</span>
+  <a th:href="@{'/rooms/' + ${date.plusDays(1)}}"> 翌日 &gt;</a>
+  <!--<form method="post" th:action="@{/users}" th:object="${form}">-->
+    <!--<div class="ui search">-->
+      <!--<div class="ui icon input small">-->
+        <!--<input class="prompt" th:field="*{name}" type="text" placeholder="名前を入力"/>-->
+      <!--</div>-->
+      <!--<div class="ui icon input small">-->
+        <!--<select class="ui search dropdown" th:field="*{gender}">-->
+          <!--<option value="">性別を選択</option>-->
+          <!--<option th:each="gender : ${genders}" th:text="#{|user.field.gender.${gender}|}" th:value="${gender}"></option>-->
+        <!--</select>-->
+      <!--</div>-->
+      <!--<button class="ui small button">検索</button>-->
+    <!--</div>-->
+  <!--</form>-->
+  <!--<div class="ui success message" th:if="${savedUser}">-->
+    <!--<div><p th:text="|${savedUser.name}を登録しました！|"></p></div>-->
+  <!--</div>-->
+  <!--<div class="ui success message" th:if="${updatedUser}">-->
+    <!--<div><p th:text="|${updatedUser.name}を更新しました！|"></p></div>-->
+  <!--</div>-->
+  <!--<div class="ui success message" th:if="${deletedUser}">-->
+    <!--<div><p th:text="|${deletedUser}を削除しました！|"></p></div>-->
+  <!--</div>-->
+  <!--<p th:if="${#lists.isEmpty(users)}" th:text="#{user.search.result.empty}">なし</p>-->
+  <table class="ui celled blue table">
+    <thead>
+    <tr>
+      <th th:text="#{meetingroom.field.roomname.label}">場所</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="room : ${rooms}">
+      <td>
+        <a th:href="@{'/reservations/' + ${date} + '/' + ${room.meetingRoom.roomId}}" th:text="${room.meetingRoom.roomName}">豊洲</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <!--<div colspan="4">-->
+      <!--<a th:href="@{/users/new}"><div class="ui right floated small primary labeled icon button"><i class="user icon"></i>新規登録</div></a>-->
+  <!--</div>-->
+</div>
+</body>
+</html>

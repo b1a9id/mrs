@@ -21,8 +21,7 @@ public class Reservation implements Serializable {
     private LocalTime endTime;
 
     @ManyToOne
-    @JoinColumns({@JoinColumn(name = "reserved_date"),
-    @JoinColumn(name = "room_id")})
+    @JoinColumns({@JoinColumn(name = "reserved_date"), @JoinColumn(name = "room_id")})
     private ReservableRoom reservableRoom;
 
     @ManyToOne
