@@ -1,19 +1,17 @@
 package mrs.app.reservation;
 
-import mrs.domain.model.ReservableRoomId;
-import mrs.domain.model.Reservation;
-import mrs.domain.model.RoleName;
-import mrs.domain.model.User;
+import mrs.domain.model.*;
 import mrs.domain.service.reservation.ReservationService;
 import mrs.domain.service.room.RoomService;
+import mrs.support.AlreadyReservedExceptiom;
+import mrs.support.UnavailableReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -57,6 +55,49 @@ public class ReservationCreateController {
         model.addAttribute("timeList", timeList);
         model.addAttribute("user", dummyUser());
         return "reservation/new";
+    }
+
+
+    @PostMapping
+    public String create(@Validated ReservationForm form,
+                         BindingResult bindingResult,
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable LocalDate date,
+                         @PathVariable Integer roomId,
+                         Model model) {
+        if (bindingResult.hasErrors()) {
+            return init(date, roomId, model);
+        }
+
+        ReservableRoom reservableRoom = new ReservableRoom(new ReservableRoomId(roomId, date));
+        Reservation reservation = new Reservation();
+        reservation.setStartTime(form.getStartTime());
+        reservation.setEndTime(form.getEndTime());
+        reservation.setReservableRoom(reservableRoom);
+        reservation.setUser(dummyUser());
+
+        try {
+            reservationService.reserve(reservation);
+        } catch (UnavailableReservationException | AlreadyReservedExceptiom e) {
+            model.addAttribute("error", e.getMessage());
+            return init(date, roomId, model);
+        }
+        return "redirect:/reservations/{date}/{roomId}";
+    }
+
+    @PostMapping(params = "cancel")
+    public String cancel(
+            @RequestParam Integer reservationId,
+            @PathVariable Integer roomId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable LocalDate date,
+            Model model) {
+        User user = dummyUser();
+        try {
+            reservationService.cancel(reservationId, user);
+        } catch (IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+            return init(date, roomId, model);
+        }
+        return "redirect:/reservations/{date}/{roomId}";
     }
 
     private User dummyUser() {

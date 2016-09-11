@@ -20,6 +20,7 @@
         <div colspan="4">
             <a th:href="@{'/rooms/' + ${date}}"><div class="ui right floated small red labeled icon button"><i class="sign out icon"></i>会議室一覧へ</div></a>
         </div>
+        <p style="color: red" th:if="${Error != null}" th:text="${error}"></p>
 
         <form th:object="${reservationForm}" th:action="@{'/reservations/' + ${date} + '/' + ${roomId}}" method="post">
             <table class="ui celled blue table">
