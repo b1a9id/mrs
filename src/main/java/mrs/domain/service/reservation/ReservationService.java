@@ -22,7 +22,7 @@ public class ReservationService {
 
     public Reservation reserve(Reservation reservation) {
         ReservableRoomId reservableRoomId = reservation.getReservableRoom().getReservableRoomId();
-        ReservableRoom reservableRoom = reservableRoomRepository.findOne(reservableRoomId);
+        ReservableRoom reservableRoom = reservableRoomRepository.findOneForUpdateByReservableRoomId(reservableRoomId);
         if (reservableRoom == null) {
             throw new UnavailableReservationException("入力の日付・部屋の組み合わせは予約できません。");
         }
