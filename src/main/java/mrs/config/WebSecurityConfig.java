@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/rooms", true)
-                .failureUrl("/login-form?error=true").permitAll();
+                .failureUrl("/login?error=true").permitAll();
     }
 
     @Override

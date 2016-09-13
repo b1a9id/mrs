@@ -6,6 +6,7 @@ import mrs.domain.repository.room.ReservableRoomRepository;
 import mrs.support.AlreadyReservedExceptiom;
 import mrs.support.UnavailableReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,11 +38,11 @@ public class ReservationService {
 
     public void cancel(Integer reservationId, User requestUser) {
         Reservation reservation = reservationRepository.findOne(reservationId);
-        if (Objects.isNull(reservation)) {
-            throw new IllegalStateException("予約が存在しません。v");
-        }
+//        if (Objects.isNull(reservation)) {
+//            throw new IllegalStateException("予約が存在しません。v");
+//        }
         if (RoleName.ADMIN != requestUser.getRoleName() && !Objects.equals(reservation.getUser().getUserId(), requestUser.getUserId())) {
-            throw new IllegalStateException("要求されたキャンセルは許可できません。");
+            throw new AccessDeniedException("要求されたキャンセルは許可できません。");
         }
         reservationRepository.delete(reservation);
     }

@@ -3,10 +3,14 @@ package mrs.app.reservation;
 import mrs.domain.model.*;
 import mrs.domain.service.reservation.ReservationService;
 import mrs.domain.service.room.RoomService;
+import mrs.domain.service.user.ReservationUserDetails;
 import mrs.support.AlreadyReservedExceptiom;
 import mrs.support.UnavailableReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Controller
@@ -45,15 +50,13 @@ public class ReservationCreateController {
         ReservableRoomId reservableRoomId = new ReservableRoomId(roomId, date);
         List<Reservation> reservations = reservationService.searchReservation(reservableRoomId);
 
-        List<LocalTime> timeList =
-                Stream.iterate(LocalTime.of(0, 0), t -> t.plusMinutes(30))
-                .limit(24 * 2)
-                .collect(Collectors.toList());
-
+        LocalTime baseTime = LocalTime.of(0, 0);
+        List<LocalTime> timeList = IntStream.range(0, 24 * 2)
+                .mapToObj(i -> baseTime.plusMinutes(30 * i)).collect(Collectors.toList());
         model.addAttribute("room", roomService.searchMeetingRoom(roomId));
         model.addAttribute("reservations", reservations);
         model.addAttribute("timeList", timeList);
-        model.addAttribute("user", dummyUser());
+//        model.addAttribute("user", dummyUser());
         return "reservation/new";
     }
 
@@ -61,6 +64,7 @@ public class ReservationCreateController {
     @PostMapping
     public String create(@Validated ReservationForm form,
                          BindingResult bindingResult,
+                         @AuthenticationPrincipal ReservationUserDetails userDetails,
                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable LocalDate date,
                          @PathVariable Integer roomId,
                          Model model) {
@@ -73,7 +77,7 @@ public class ReservationCreateController {
         reservation.setStartTime(form.getStartTime());
         reservation.setEndTime(form.getEndTime());
         reservation.setReservableRoom(reservableRoom);
-        reservation.setUser(dummyUser());
+        reservation.setUser(userDetails.getUser());
 
         try {
             reservationService.reserve(reservation);
@@ -86,14 +90,15 @@ public class ReservationCreateController {
 
     @PostMapping(params = "cancel")
     public String cancel(
+            @AuthenticationPrincipal ReservationUserDetails userDetails,
             @RequestParam Integer reservationId,
             @PathVariable Integer roomId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable LocalDate date,
             Model model) {
-        User user = dummyUser();
+        User user = userDetails.getUser();
         try {
             reservationService.cancel(reservationId, user);
-        } catch (IllegalStateException e) {
+        } catch (AccessDeniedException e) {
             model.addAttribute("error", e.getMessage());
             return init(date, roomId, model);
         }
