@@ -36,15 +36,15 @@
                     ログイン
                 </div>
             </h2>
-            <div class="ui success message" th:if="${passwordReset}">
-                パスワードを更新しました。
-            </div>
-            <div class="ui error message" th:if="${failed}">
-                ログインできませんでした。
-            </div>
-            <div class="ui error message" th:if="${locked}">
-                アカウントがロックされています。
-            </div>
+            <!--<div class="ui success message" th:if="${passwordReset}">-->
+                <!--パスワードを更新しました。-->
+            <!--</div>-->
+            <!--<div class="ui error message" th:if="${failed}">-->
+                <!--ログインできませんでした。-->
+            <!--</div>-->
+            <!--<div class="ui error message" th:if="${locked}">-->
+                <!--アカウントがロックされています。-->
+            <!--</div>-->
             <div th:if="${param.error}" class="ui error message">
                 ユーザ名・パスワードが誤っています。
             </div>
@@ -53,13 +53,13 @@
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
-                            <input type="text" name="username" placeholder="ユーザ名" autocomplete="off"/>
+                            <input type="text" id="username" name="username" placeholder="ユーザ名" value="aaaa" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="privacy icon"></i>
-                            <input type="password" name="password" placeholder="パスワード" autocomplete="off" />
+                            <input type="password" id="password" name="password" placeholder="パスワード" value="demo" autocomplete="off" />
                         </div>
                     </div>
                     <!--<div class="ui fluid large primary submit button reset-button">ログイン</div>-->
