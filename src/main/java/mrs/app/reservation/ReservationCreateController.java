@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,7 +21,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("reservations/{date}/{roomId}")
@@ -46,7 +44,8 @@ public class ReservationCreateController {
     public String init(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable LocalDate date,
             @PathVariable Integer roomId,
-            Model model) {
+            Model model,
+            @AuthenticationPrincipal ReservationUserDetails userDetails) {
         ReservableRoomId reservableRoomId = new ReservableRoomId(roomId, date);
         List<Reservation> reservations = reservationService.searchReservation(reservableRoomId);
 
@@ -56,7 +55,7 @@ public class ReservationCreateController {
         model.addAttribute("room", roomService.searchMeetingRoom(roomId));
         model.addAttribute("reservations", reservations);
         model.addAttribute("timeList", timeList);
-//        model.addAttribute("user", dummyUser());
+        model.addAttribute("user", userDetails.getUser());
         return "reservation/new";
     }
 
@@ -69,7 +68,7 @@ public class ReservationCreateController {
                          @PathVariable Integer roomId,
                          Model model) {
         if (bindingResult.hasErrors()) {
-            return init(date, roomId, model);
+            return init(date, roomId, model, userDetails);
         }
 
         ReservableRoom reservableRoom = new ReservableRoom(new ReservableRoomId(roomId, date));
@@ -83,7 +82,7 @@ public class ReservationCreateController {
             reservationService.reserve(reservation);
         } catch (UnavailableReservationException | AlreadyReservedExceptiom e) {
             model.addAttribute("error", e.getMessage());
-            return init(date, roomId, model);
+            return init(date, roomId, model, userDetails);
         }
         return "redirect:/reservations/{date}/{roomId}";
     }
@@ -97,10 +96,11 @@ public class ReservationCreateController {
             Model model) {
         User user = userDetails.getUser();
         try {
-            reservationService.cancel(reservationId, user);
+            Reservation reservation = reservationService.findOne(reservationId);
+            reservationService.cancel(reservation);
         } catch (AccessDeniedException e) {
             model.addAttribute("error", e.getMessage());
-            return init(date, roomId, model);
+            return init(date, roomId, model, userDetails);
         }
         return "redirect:/reservations/{date}/{roomId}";
     }

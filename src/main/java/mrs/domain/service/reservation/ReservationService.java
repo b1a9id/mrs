@@ -7,12 +7,16 @@ import mrs.support.AlreadyReservedExceptiom;
 import mrs.support.UnavailableReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.method.P;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional
 public class ReservationService {
 
     @Autowired
@@ -36,15 +40,20 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public void cancel(Integer reservationId, User requestUser) {
-        Reservation reservation = reservationRepository.findOne(reservationId);
+    @PreAuthorize("hasRole('ADMIN') or #reservation.user.userId == principal.user.userId")
+    public void cancel(@P("reservation") Reservation reservation) {
+//        Reservation reservation = reservationRepository.findOne(reservationId);
 //        if (Objects.isNull(reservation)) {
 //            throw new IllegalStateException("予約が存在しません。v");
 //        }
-        if (RoleName.ADMIN != requestUser.getRoleName() && !Objects.equals(reservation.getUser().getUserId(), requestUser.getUserId())) {
-            throw new AccessDeniedException("要求されたキャンセルは許可できません。");
-        }
+//        if (RoleName.ADMIN != requestUser.getRoleName() && !Objects.equals(reservation.getUser().getUserId(), requestUser.getUserId())) {
+//            throw new AccessDeniedException("要求されたキャンセルは許可できません。");
+//        }
         reservationRepository.delete(reservation);
+    }
+
+    public Reservation findOne(Integer reservationId) {
+        return reservationRepository.findOne(reservationId);
     }
 
     public List<Reservation> searchReservation(ReservableRoomId reservableRoomId) {

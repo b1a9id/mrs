@@ -1,5 +1,6 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="ja">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.w3.org/1999/xhtml" lang="ja">
 <head>
     <meta charset="UTF-8" />
     <link rel="stylesheet" th:href="@{/webjars/Semantic-UI/2.1.8/semantic.min.css}"/>
@@ -30,7 +31,7 @@
                 </tr>
                 <tr>
                     <th th:text="#{reservation.field.user.label}">登録者</th>
-                    <td th:text="${user.lastName} + '' + ${user.firstName}">田中三郎</td>
+                    <td th:text="${user.lastName} + ' ' + ${user.firstName}">田中三郎</td>
                 </tr>
                 <tr>
                     <th th:text="#{reservation.field.date.label}">日付</th>
@@ -69,14 +70,14 @@
                     <span th:text="${reservation.endTime}">12:00</span>
                 </td>
                 <td>
-                    <span th:text="${user.lastName}">山田</span>
-                    <span th:text="${user.firstName}">太郎</span>
+                    <span th:text="${reservation.user.lastName}">山田</span>
+                    <span th:text="${reservation.user.firstName}">太郎</span>
                 </td>
                 <td>
-                    <form th:if="${user.userId == reservation.user.userId}" th:action="@{'/reservations/' + ${date} + '/' + ${roomId}}" method="post">
+                    <form th:if="${user.userId == reservation.user.userId}" th:action="@{'/reservations/' + ${date} + '/' + ${roomId}}" method="post"
+                        sec:authorize="${hasRole('ADMIN') or #vars.user.userId == #vars.reservation.user.userId}">
                         <input type="hidden" name="reservationId" th:value="${reservation.reservationId}" />
-                        <input type="submit" name="cancel" value="取
-                        消"/>
+                        <input type="submit" name="cancel" value="取消"/>
                     </form>
                 </td>
             </tr>
