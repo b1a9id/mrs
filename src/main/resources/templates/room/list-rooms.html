@@ -18,9 +18,10 @@
 <body>
 <div class="ui text container">
   <form th:action="@{/logout}" method="post">
-    <div colspan="4">
-      <div class="ui right floated small red labeled icon button"><i class="sign out icon"></i>ログアウト</div>
-    </div>
+    <!--<div colspan="4">-->
+      <!--<div class="ui right floated small red labeled icon button"><i class="sign out icon"></i>ログアウト</div>-->
+    <!--</div>-->
+    <button>ログアウト</button>
   </form>
   <a th:href="@{'/rooms/' + ${date.minusDays(1)}}">&lt; 前日 </a>
   <span class="ui header aligned blue" th:text="|${#temporals.format(date, 'yyyy/M/d')}の会議室|">2016/05/20の会議室</span>
